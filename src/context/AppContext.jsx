@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { toast } from "sonner";
 
 const AppContext = createContext();
 
@@ -30,9 +31,13 @@ export const AppProvider = ({ children }) => {
       const res = await axios.post("/api/auth/signup", data, {
         withCredentials: true,
       });
-      if (res.status === 201) router.push("/login");
+      if (res.status === 201) {
+        router.push("/login");
+        toast("User registered successfully");
+      }
     } catch (error) {
       console.error("Error during signup:", error);
+      toast(error.response?.data?.message || "Failed to signup");
     }
   };
 
@@ -45,19 +50,22 @@ export const AppProvider = ({ children }) => {
       if (data.user) {
         setUser(data.user);
         router.push("/dashboard");
+        toast(data?.message || "Login success");
       } else {
         setUser(null);
       }
     } catch (error) {
       console.error("Error during login:", error);
+      toast(error.response?.data?.message || "Failed to login");
       setUser(null);
     }
   };
 
   const logout = async () => {
-    await axios.post("/api/auth/logout");
+    const { data } = await axios.post("/api/auth/logout");
     setUser(null);
     router.push("/");
+    toast(data?.message || "Logged out");
   };
 
   return (
