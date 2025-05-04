@@ -54,8 +54,14 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const logout = async () => {
+    await axios.post("/api/auth/logout");
+    setUser(null);
+    router.push("/");
+  };
+
   return (
-    <AppContext.Provider value={{ user, setUser, signup, login }}>
+    <AppContext.Provider value={{ user, setUser, signup, login, logout }}>
       {children}
     </AppContext.Provider>
   );
