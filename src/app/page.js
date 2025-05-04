@@ -2,14 +2,26 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/context/AppContext";
 import { LogIn, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { user } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user]);
+
+  if (user) return null;
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-6 shadow-lg border border-gray-200">
+      <Card className="w-full max-w-md shadow-lg border border-gray-200">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
             Taskify
