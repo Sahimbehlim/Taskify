@@ -10,30 +10,31 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [tasks, setTasks] = useState([]);
+
+  // Check if the user is authenticated and fetch user data
+  const checkAuth = async () => {
+    try {
+      const { data } = await axios.get("/api/me", { withCredentials: true });
+      setUser(data.user);
+    } catch (error) {
+      setUser(null);
+    }
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await axios.get("/api/me", { withCredentials: true });
-        setUser(data.user);
-      } catch (error) {
-        if (error.response?.status !== 401) {
-          console.error("Error fetching user:", error);
-        }
-        setUser(null);
-      }
-    };
     checkAuth();
   }, []);
 
+  // Sign up new user
   const signup = async (data) => {
     try {
       const res = await axios.post("/api/auth/signup", data, {
         withCredentials: true,
       });
       if (res.status === 201) {
-        router.push("/login");
         toast("User registered successfully");
+        router.push("/login");
       }
     } catch (error) {
       console.error("Error during signup:", error);
@@ -41,6 +42,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Log in user
   const login = async (credentials) => {
     try {
       const { data } = await axios.post("/api/auth/login", credentials, {
@@ -49,8 +51,9 @@ export const AppProvider = ({ children }) => {
 
       if (data.user) {
         setUser(data.user);
-        router.push("/dashboard");
+        setTasks(data.tasks);
         toast(data?.message || "Login success");
+        router.push("/dashboard");
       } else {
         setUser(null);
       }
@@ -61,15 +64,32 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Log out user
   const logout = async () => {
-    const { data } = await axios.post("/api/auth/logout");
-    setUser(null);
-    router.push("/");
-    toast(data?.message || "Logged out");
+    try {
+      const { data } = await axios.post("/api/auth/logout");
+      setUser(null);
+      setTasks([]);
+      router.push("/");
+      toast(data.message || "Logged out");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
-    <AppContext.Provider value={{ user, setUser, signup, login, logout }}>
+    <AppContext.Provider
+      value={{
+        user,
+        setUser,
+        signup,
+        login,
+        logout,
+        tasks,
+        setTasks,
+        checkAuth,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

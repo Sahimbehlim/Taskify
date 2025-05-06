@@ -1,5 +1,6 @@
 import { setUser } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
+import Task from "@/models/Task";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
@@ -19,10 +20,13 @@ export async function POST(req) {
 
     const token = setUser(user);
 
+    const tasks = await Task.find({ createdBy: user.id });
+
     return new Response(
       JSON.stringify({
         message: "Login success",
         user: { id: user._id, name: user.name, email: user.email },
+        tasks,
       }),
       {
         status: 200,

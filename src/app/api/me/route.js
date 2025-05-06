@@ -1,5 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
+import Task from "@/models/Task";
 import User from "@/models/User";
 
 export async function GET(req) {
@@ -11,11 +12,12 @@ export async function GET(req) {
   }
 
   await connectDB();
+
   const user = await User.findById(decoded.id).select("-password");
 
   if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  return Response.json({ user });
+  return new Response(JSON.stringify({ user }));
 }

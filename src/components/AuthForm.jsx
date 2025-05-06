@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,11 +21,7 @@ export default function AuthForm({ type }) {
     setErrorMsg("");
 
     try {
-      if (type === "signup") {
-        await signup(data);
-      } else {
-        await login(data);
-      }
+      type === "signup" ? await signup(data) : await login(data);
     } catch (error) {
       console.error("Auth error:", error);
       setErrorMsg("Something went wrong. Please try again.");
