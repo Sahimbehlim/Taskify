@@ -14,10 +14,11 @@ export async function GET(req) {
   await connectDB();
 
   const user = await User.findById(decoded.id).select("-password");
+  const tasks = await Task.find({ createdBy: user.id });
 
   if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  return new Response(JSON.stringify({ user }));
+  return new Response(JSON.stringify({ user, tasks }));
 }

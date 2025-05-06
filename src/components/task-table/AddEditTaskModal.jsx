@@ -34,7 +34,7 @@ export default function AddEditTaskModal({
     if (task) {
       setForm({
         ...task,
-        dueDate: task.dueDate?.slice(0, 10) || "",
+        dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
       });
     } else {
       setForm({
@@ -92,7 +92,7 @@ export default function AddEditTaskModal({
               type="date"
               name="dueDate"
               min={today}
-              value={form.dueDate}
+              value={form.dueDate ? form.dueDate.split("T")[0] : ""}
               onChange={handleChange}
               required
             />

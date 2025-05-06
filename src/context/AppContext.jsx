@@ -16,9 +16,11 @@ export const AppProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const { data } = await axios.get("/api/me", { withCredentials: true });
+      setTasks(data.tasks);
       setUser(data.user);
     } catch (error) {
       setUser(null);
+      setTasks([]);
     }
   };
 
