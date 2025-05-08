@@ -1,27 +1,49 @@
 "use client";
 
 import { useAuth } from "@/context/AppContext";
+import axios from "axios";
 import { format, isBefore } from "date-fns";
 import { UserCheck, UserPlus, CalendarX, Bell } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function OverviewPage() {
   const { user, tasks } = useAuth();
 
-  const [assignedTasks, setAssignedTasks] = useState([]);
-  const [createdTasks, setCreatedTasks] = useState(tasks);
+  const [notifications, setNotifications] = useState([]);
   const [overdueTasks, setOverdueTasks] = useState([]);
 
+  // Fetch notifications once
   useEffect(() => {
-    if (!user || !tasks) return;
+    const fetchNotification = async () => {
+      try {
+        const { data } = await axios.get("/api/notifications", {
+          withCredentials: true,
+        });
+        setNotifications(data || []);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    };
 
-    const overdue = tasks.filter((task) =>
-      isBefore(new Date(task.dueDate), new Date())
+    fetchNotification();
+  }, []);
+
+  // Determine overdue tasks based on notification task due dates
+  useEffect(() => {
+    if (!user || notifications.length === 0) return;
+
+    const overdue = notifications.filter(
+      (noti) =>
+        noti?.taskId?.dueDate &&
+        isBefore(new Date(noti?.taskId?.dueDate), new Date())
     );
 
-    setCreatedTasks(tasks);
     setOverdueTasks(overdue);
-  }, [user, tasks]);
+
+    setOverdueTasks(overdue);
+  }, [user, notifications]);
+
+  const createdTasks = useMemo(() => tasks || [], [tasks]);
 
   return (
     <>
@@ -30,7 +52,7 @@ export default function OverviewPage() {
         <Card
           title="Tasks Assigned to Me"
           icon={<UserCheck className="text-blue-600" />}
-          count={assignedTasks.length}
+          count={notifications.length}
         />
         <Card
           title="Tasks I Created"
@@ -49,25 +71,31 @@ export default function OverviewPage() {
           <Bell className="w-5 h-5 text-muted-foreground" />
           Task Notifications (Assigned to Me)
         </h2>
-        {assignedTasks.length === 0 ? (
+        {notifications.length === 0 ? (
           <p className="text-muted-foreground">No tasks assigned to you.</p>
         ) : (
-          <ul className="space-y-3">
-            {assignedTasks.map((task) => (
-              <li
-                key={task._id}
-                className="border rounded-lg p-3 bg-white shadow"
-              >
-                <div className="font-semibold">{task.title}</div>
-                <div className="text-sm text-muted-foreground">
-                  Due: {format(new Date(task.dueDate), "PPP")}
+          <div className="grid auto-rows-min gap-4 lg:grid-cols-3">
+            {notifications.map((noti) => {
+              const task = noti.taskId;
+              return (
+                <div
+                  key={noti._id}
+                  className="border rounded-lg p-3 bg-white shadow"
+                >
+                  <div className="font-semibold">{task?.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Description: {task?.description}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Due: {format(new Date(task?.dueDate), "PPP")}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Priority: {task?.priority}
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Priority: {task.priority}
-                </div>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         )}
       </div>
     </>

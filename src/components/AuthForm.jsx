@@ -14,17 +14,14 @@ export default function AuthForm({ type }) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const onSubmit = async (data) => {
     setLoading(true);
-    setErrorMsg("");
 
     try {
       type === "signup" ? await signup(data) : await login(data);
     } catch (error) {
       console.error("Auth error:", error);
-      setErrorMsg("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -48,12 +45,14 @@ export default function AuthForm({ type }) {
                 required
               />
             )}
+
             <Input
               type="email"
               placeholder="Email"
               {...register("email")}
               required
             />
+
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
@@ -73,10 +72,6 @@ export default function AuthForm({ type }) {
                 )}
               </button>
             </div>
-
-            {errorMsg && (
-              <p className="text-sm text-red-500 text-center">{errorMsg}</p>
-            )}
 
             <Button
               type="submit"

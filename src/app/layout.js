@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
-import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
 
+// Font setup
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -16,12 +17,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <AppProvider>{children}</AppProvider>
-        <Toaster />
+        <AppProvider>
+          {children}
+          <Toaster />
+        </AppProvider>
       </body>
     </html>
   );

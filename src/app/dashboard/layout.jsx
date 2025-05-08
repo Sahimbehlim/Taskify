@@ -1,6 +1,9 @@
 "use client";
 
-import AppSidebar from "@/components/AppSidebar";
+import { useEffect, useMemo, Fragment } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,16 +12,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+
+import AppSidebar from "@/components/AppSidebar";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AppContext";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useEffect, Fragment } from "react";
 
 export default function DashboardLayout({ children }) {
   const { user } = useAuth();
@@ -29,9 +31,9 @@ export default function DashboardLayout({ children }) {
     if (user === null) {
       router.push("/");
     }
-  }, [user]);
+  }, [user, router]);
 
-  if (user === null) return null;
+  if (!user) return null;
 
   // Create breadcrumb segments based on pathname
   const segments = pathname.split("/").filter(Boolean);
@@ -51,7 +53,7 @@ export default function DashboardLayout({ children }) {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
-              {formattedSegments.map((seg, idx) => (
+              {formattedSegments.map((seg) => (
                 <Fragment key={seg.href}>
                   <BreadcrumbItem>
                     {seg.isLast ? (
@@ -62,7 +64,6 @@ export default function DashboardLayout({ children }) {
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-
                   {!seg.isLast && <BreadcrumbSeparator />}
                 </Fragment>
               ))}

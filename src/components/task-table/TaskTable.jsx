@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getColumns } from "./columns";
+import { useAuth } from "@/context/AppContext";
+import axios from "axios";
+
 import AddEditTaskModal from "./AddEditTaskModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +15,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-
 import {
   Table,
   TableHeader,
@@ -21,15 +23,12 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import axios from "axios";
-import { useAuth } from "@/context/AppContext";
-import { CalendarIcon, FilterIcon, ChevronDownIcon } from "lucide-react";
-import { format } from "date-fns";
 
 export default function TaskTable() {
   const { tasks, setTasks } = useAuth();
@@ -45,52 +44,69 @@ export default function TaskTable() {
   const [filteredTasks, setFilteredTasks] = useState(tasks);
 
   // 🟢 Add or Edit Task
-  const handleAddEdit = async (taskData) => {
-    try {
-      setLoading(true);
-      if (editingTask) {
-        // Update
-        const { data } = await axios.put(
-          `/api/tasks/${editingTask._id}`,
-          taskData,
-          {
+  const handleAddEdit = useCallback(
+    async (taskData) => {
+      try {
+        setLoading(true);
+        let response;
+        if (editingTask) {
+          // Update
+          response = await axios.put(
+            `/api/tasks/${editingTask._id}`,
+            taskData,
+            {
+              withCredentials: true,
+            }
+          );
+          setTasks((prev) =>
+            prev.map((task) =>
+              task._id === response.data.updatedTask._id
+                ? response.data.updatedTask
+                : task
+            )
+          );
+        } else {
+          // Create
+          response = await axios.post("/api/tasks", taskData, {
             withCredentials: true,
-          }
-        );
-
-        setTasks((prev) =>
-          prev.map((task) =>
-            task._id === data.updatedTask._id ? data.updatedTask : task
-          )
-        );
-      } else {
-        // Create
-        const { data } = await axios.post("/api/tasks", taskData, {
-          withCredentials: true,
-        });
-        setTasks((prev) => [...prev, data.task]);
+          });
+          setTasks((prev) => [...prev, response.data.task]);
+        }
+        setModalOpen(false);
+        setEditingTask(null);
+      } catch (err) {
+        console.error("Error saving task", err);
+      } finally {
+        setLoading(false);
       }
-      setModalOpen(false);
-      setEditingTask(null);
-    } catch (err) {
-      console.error("Error saving task", err);
-    } finally {
-      setLoading(false);
-    }
+    },
+    [editingTask, setTasks]
+  );
+
+  const handleDelete = useCallback(
+    async (id) => {
+      if (!confirm("Are you sure to delete?")) return;
+
+      try {
+        await axios.delete(`/api/tasks/${id}`, { withCredentials: true });
+        setTasks((prev) => prev.filter((task) => task._id !== id));
+      } catch (err) {
+        console.error("Error deleting task", err);
+      }
+    },
+    [setTasks]
+  );
+
+  // Reset Filters
+  const handleResetFilters = () => {
+    setFilters({
+      status: "",
+      priority: "",
+      dueDate: "",
+    });
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure to delete?")) return;
-
-    try {
-      await axios.delete(`/api/tasks/${id}`, { withCredentials: true });
-      setTasks((prev) => prev.filter((task) => task._id !== id));
-    } catch (err) {
-      console.error("Error deleting task", err);
-    }
-  };
-
-  useEffect(() => {
+  const filterTasks = useCallback(() => {
     const newFilteredTasks = tasks.filter((task) => {
       const matchesSearch =
         task.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -108,7 +124,11 @@ export default function TaskTable() {
     });
 
     setFilteredTasks(newFilteredTasks);
-  }, [search, tasks, filters]);
+  }, [search, filters, tasks]);
+
+  useEffect(() => {
+    filterTasks();
+  }, [filterTasks]);
 
   const columns = getColumns({
     onEdit: (task) => {
@@ -124,14 +144,6 @@ export default function TaskTable() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Reset Filters
-  const handleResetFilters = () => {
-    setFilters({
-      status: "",
-      priority: "",
-      dueDate: "",
-    });
-  };
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4 sm:gap-0">

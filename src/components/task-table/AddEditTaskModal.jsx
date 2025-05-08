@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const priorities = ["Low", "Medium", "High"];
 const statuses = ["Pending", "In Progress", "Completed"];
@@ -73,6 +74,7 @@ export default function AddEditTaskModal({
               value={form.title}
               onChange={handleChange}
               required
+              disabled={loading}
             />
           </div>
 
@@ -83,6 +85,7 @@ export default function AddEditTaskModal({
               value={form.description}
               onChange={handleChange}
               required
+              disabled={loading}
             />
           </div>
 
@@ -95,6 +98,7 @@ export default function AddEditTaskModal({
               value={form.dueDate ? form.dueDate.split("T")[0] : ""}
               onChange={handleChange}
               required
+              disabled={loading}
             />
           </div>
 
@@ -106,6 +110,7 @@ export default function AddEditTaskModal({
                 value={form.priority}
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
+                disabled={loading}
               >
                 {priorities.map((p) => (
                   <option key={p} value={p}>
@@ -122,6 +127,7 @@ export default function AddEditTaskModal({
                 value={form.status}
                 onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
+                disabled={loading}
               >
                 {statuses.map((s) => (
                   <option key={s} value={s}>

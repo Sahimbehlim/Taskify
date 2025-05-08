@@ -10,8 +10,10 @@ export default function SignupPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/dashboard");
-  }, [user]);
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
 
   if (user) return null;
 

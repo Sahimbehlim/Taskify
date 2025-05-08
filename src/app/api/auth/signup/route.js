@@ -3,24 +3,41 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
-  await connectDB();
-  const { name, email, password } = await req.json();
-
-  if (!name || !email || !password) {
-    return Response.json({ message: "Missing fields" }, { status: 400 });
-  }
-
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return Response.json({ message: "User already exists" }, { status: 400 });
+    await connectDB();
+
+    const { name, email, password } = await req.json();
+
+    // Validate request
+    if (!name || !email || !password) {
+      return Response.json(
+        { error: "All fields are required." },
+        { status: 400 }
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    await User.create({ name, email, password: hashedPassword });
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return Response.json({ error: "User already exists." }, { status: 409 });
+    }
 
-    return Response.json({ message: "User registered" }, { status: 201 });
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create user
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    return Response.json(
+      { message: "User registered successfully." },
+      { status: 201 }
+    );
   } catch (error) {
-    return Response.json({ message: "Signup failed" }, { status: 500 });
+    console.error("❌ Signup Error:", err);
+    return Response.json({ error: "Internal Server Error." }, { status: 500 });
   }
 }

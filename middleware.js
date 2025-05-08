@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const PUBLIC_ROUTES = ["/", "/login", "/signup"];
 
-export async function middleware(request) {
+export function middleware(request) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
@@ -13,14 +13,15 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token) {
-    try {
-      getUser(token);
-    } catch (error) {
-      console.error("JWT verification failed:", error.message);
-      if (!isPublic) {
-        return NextResponse.redirect(new URL("/login", request.url));
-      }
+  if (token && !isPublic) {
+    const user = getUser(token);
+    if (!user || user.error === "Token expired") {
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.set("token", "", {
+        path: "/",
+        maxAge: 0,
+      });
+      return response;
     }
   }
 
@@ -28,5 +29,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*"], // protects /dashboard and all nested routes
 };

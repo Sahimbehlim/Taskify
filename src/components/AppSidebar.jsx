@@ -1,4 +1,4 @@
-import { LayoutDashboard, CircleCheck } from "lucide-react";
+import { LayoutDashboard, CircleCheck, Users } from "lucide-react";
 
 import {
   Sidebar,
@@ -28,6 +28,11 @@ const items = [
     title: "Tasks",
     href: "/dashboard/tasks",
     icon: CircleCheck,
+  },
+  {
+    title: "Collaboration",
+    href: "/dashboard/collaboration",
+    icon: Users,
   },
 ];
 

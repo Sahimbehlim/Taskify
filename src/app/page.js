@@ -13,7 +13,7 @@ export default function Home() {
 
   useEffect(() => {
     if (user) router.push("/dashboard");
-  }, [user]);
+  }, [user, router]);
 
   if (user) return null;
 
@@ -24,24 +24,24 @@ export default function Home() {
           <CardTitle className="text-2xl font-bold text-center">
             Taskify
           </CardTitle>
-          <CardContent className="mt-2 space-y-4">
-            <Button
-              onClick={() => router.push("/login")}
-              className="w-full flex items-center gap-2 cursor-pointer"
-            >
-              <LogIn className="w-5 h-5" />
-              Login
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/signup")}
-              className="w-full flex items-center gap-2 cursor-pointer"
-            >
-              <UserPlus className="w-5 h-5" />
-              Sign Up
-            </Button>
-          </CardContent>
         </CardHeader>
+        <CardContent className="space-y-4">
+          <Button
+            onClick={() => router.push("/login")}
+            className="w-full flex items-center gap-2 cursor-pointer"
+          >
+            <LogIn className="w-5 h-5" />
+            Login
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/signup")}
+            className="w-full flex items-center gap-2 cursor-pointer"
+          >
+            <UserPlus className="w-5 h-5" />
+            Sign Up
+          </Button>
+        </CardContent>
       </Card>
     </div>
   );

@@ -12,13 +12,14 @@ export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
 
-  // Check if the user is authenticated and fetch user data
+  // Unified auth check and task fetching
   const checkAuth = async () => {
     try {
-      const { data } = await axios.get("/api/me", { withCredentials: true });
-      setTasks(data.tasks);
+      const { data } = await axios.get("/api/tasks", { withCredentials: true });
       setUser(data.user);
+      setTasks(data.tasks);
     } catch (error) {
+      console.error("Auth check failed:", error);
       setUser(null);
       setTasks([]);
     }
@@ -31,16 +32,14 @@ export const AppProvider = ({ children }) => {
   // Sign up new user
   const signup = async (data) => {
     try {
-      const res = await axios.post("/api/auth/signup", data, {
+      await axios.post("/api/auth/signup", data, {
         withCredentials: true,
       });
-      if (res.status === 201) {
-        toast("User registered successfully");
-        router.push("/login");
-      }
+      toast("User registered successfully");
+      router.push("/login");
     } catch (error) {
-      console.error("Error during signup:", error);
-      toast(error.response?.data?.message || "Failed to signup");
+      console.error("Signup error:", error);
+      toast(error.response?.data?.error || "Failed to sign up");
     }
   };
 
@@ -50,18 +49,13 @@ export const AppProvider = ({ children }) => {
       const { data } = await axios.post("/api/auth/login", credentials, {
         withCredentials: true,
       });
-
-      if (data.user) {
-        setUser(data.user);
-        setTasks(data.tasks);
-        toast(data?.message || "Login success");
-        router.push("/dashboard");
-      } else {
-        setUser(null);
-      }
+      setUser(data.user);
+      setTasks(data.tasks);
+      toast(data.message || "Login successful");
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Error during login:", error);
-      toast(error.response?.data?.message || "Failed to login");
+      console.error("Login error:", error);
+      toast(error.response?.data?.error || "Failed to login");
       setUser(null);
     }
   };
@@ -69,7 +63,11 @@ export const AppProvider = ({ children }) => {
   // Log out user
   const logout = async () => {
     try {
-      const { data } = await axios.post("/api/auth/logout");
+      const { data } = await axios.post(
+        "/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
       setUser(null);
       setTasks([]);
       router.push("/");

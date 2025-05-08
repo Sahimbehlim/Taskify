@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AppContext";
 import {
   BadgeCheck,
   Bell,
@@ -8,6 +9,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,13 +19,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/context/AppContext";
 
 export default function NavUser({ user }) {
   const { isMobile } = useSidebar();
