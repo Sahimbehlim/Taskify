@@ -36,8 +36,8 @@ export async function POST(req) {
       { message: "User registered successfully." },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (err) {
     console.error("❌ Signup Error:", err);
-    return Response.json({ error: "Internal Server Error." }, { status: 500 });
+    return Response.json({ err: "Internal Server Error." }, { status: 500 });
   }
 }
