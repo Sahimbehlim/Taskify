@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧠 Taskify – Task Management System
 
-## Getting Started
+Taskify is a fullstack Task Management System built using **Next.js** (App Router) that enables users to manage tasks, assign them to multiple team members, track overdue tasks, and get notified when tasks are assigned.
 
-First, run the development server:
+## ✨ Features
+
+- ✅ User Authentication (JWT-based, cookie stored)
+- 📋 Task CRUD with status, priority, due date
+- 👥 Assign tasks to users (no duplicate assignment)
+- 🔔 Notifications on task assignment (UI/log-based)
+- 📊 Dashboard with stats: Created, Assigned, Overdue tasks
+- 🔎 Search and Filter tasks
+- 💅 UI with ShadCN and TanStack Table
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/taskify.git
+cd taskify
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Set Environment Variables
+
+Create a .env.local file in the root directory with the following values:
+
+```bash
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_super_secret_key
+```
+
+### 4. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit http://localhost:3000 to see the app running.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🧠 Project Approach
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This is a monolithic Next.js App Router project using:
 
-## Learn More
+- API Routes in app/api/ for backend logic (task, auth, user, assignment)
+- ShadCN UI for beautiful, consistent components (modal, buttons, inputs)
+- TanStack Table for rendering searchable, filterable task tables
+- MongoDB for data storage
+- JWT for secure authentication
 
-To learn more about Next.js, take a look at the following resources:
+### ✅ Authentication
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Auth handled with JWT.
+- Users are stored in MongoDB with hashed passwords.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 📋 Tasks & Assignment Logic
 
-## Deploy on Vercel
+- Each task includes title, description, dueDate, status, priority, createdBy, and assignedTo.
+- Tasks can be assigned to users.
+- Duplicate assignment is prevented by checking if assignedTo already includes the user ID.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 📊 Dashboard
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The dashboard includes:
+
+- Tasks assigned to the user
+- Tasks created by the user
+- Overdue tasks
+
+## 🛠 Tech Stack
+
+- Frontend & Backend: Next.js (App Router)
+- Database: MongoDB (Mongoose ODM)
+- UI: ShadCN, Tailwind CSS
+- Table: TanStack Table (React Table)
+- Auth: JWT + Cookies
